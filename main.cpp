@@ -1,16 +1,16 @@
-#include <stdio.h>
+/*상수 포인터?*/
+#include<iostream>
+
+void swap(int*a, int *b){
+    int temp =*a;
+    *a=*b;
+    *b=temp;
+}
+
 int main(){
+    int x = 10, y=20;
+    swap(&x, &y);
 
-int a;
-int b;
-int *p;
-
-p = &a;
-*p = 2;
-p = &b;
-*p = 4;
-
-printf("a:%d\n",a);
-printf("b: %d \n",b);
-return 0;
+    std::cout << x <<" " <<y<< std::endl;
+    return 0;
 }

@@ -1,131 +1,69 @@
+#include <stdio.h>
 #include <iostream>
-#include <string>
 
-class Manager{
-    std::string name;
-    int age;
+class Photon_Cannon{
+    int hp, shield;
+    int coord_x, coord_y;
+    int damage;
 
-    std::string position;
-    int rank;
-    int year_of_service;
-
-    public :
-        Manager(std::string name, int age, std::string position, int rank, int year_of_service)
-        :year_of_service(year_of_service),
-         name(name),
-         age(age),
-         position(position),
-         rank(rank) {}
-
-    Manager(const Manager& manager){
-        name = manager.name;
-        age = manager.age;
-        position = manager.position;
-        rank = manager.rank;
-        year_of_service = manager.year_of_service;
-    }
-
-    Manager() {}
-    int calculate_pay() { return 200 + rank * 50 + 5 * year_of_service;}
-    void print_info(){
-        std::cout <<name << " ( "<< position << " , " << age << ", "
-        << year_of_service<< "년차) ==>" <<calculate_pay() <<"만원"<<std::endl;
-    }
-};
-
-class Employee{
-    std::string name;
-    int age;
-
-    std::string position;
-    int rank;
+    char *name;
 
     public:
-        Employee(std::string name, int age, std::string position, int rank)
-            : name(name), age(age), position(position), rank(rank) {}
+        Photon_Cannon(int x, int y);
+        Photon_Cannon(int x, int y, const char *cannon_name);
+        Photon_Cannon(const Photon_Cannon &pc);
+        ~Photon_Cannon();
+        
 
-Employee(const Employee& employee){
-    name = employee.name;
-    age = employee.age;
-    position = employee.position;
-    rank = employee.rank;
-}
-
-Employee() {}
-
-void print_info(){
-    std::cout <<name << "(" << position << " , " << age << " ) ==>" 
-    <<calculate_pay() <<  " 만원 " << std::endl;
-
-}
-int calculate_pay() {return 200+ rank * 50;}
+        void show_status();
 };
 
-class EmployeeList{
-    int alloc_employee; 
-    int current_employee; 
-    int current_manager;
+Photon_Cannon::Photon_Cannon(int x, int y){
+    hp = shield = 100;
+    coord_x = x;
+    coord_y = y;
+    damage = 20;
 
-    Employee **employee_list; 
-    Manager **manager_list;
+    name = NULL;
+}
 
-    public: 
-        EmployeeList(int alloc_employee) : alloc_employee(alloc_employee){
-            employee_list = new Employee*[alloc_employee];
-            manager_list = new Manager*[alloc_employee];
-            current_employee = 0;
-            current_manager = 0;
-        }
+Photon_Cannon::Photon_Cannon(const Photon_Cannon &pc){
+    std::cout << "복사 생성자 호출!" << std::endl;
+    hp = pc.hp;
+    shield = pc.shield;
+    coord_x = pc.coord_x;
+    coord_y = pc.coord_y;
+    damage = pc.damage;
 
-    void add_employee(Employee* employee){
-        employee_list[current_employee] = employee;
-        current_employee++;
-    }
+    name = new char[strlen(pc.name) + 1];
+    strcpy(name, pc.name);
+}
+Photon_Cannon::Photon_Cannon(int x, int y, const char *cannon_name){
+    hp = shield =100;
+    coord_x =x;
+    coord_y =y;
+    damage = 20;
 
-    void add_manager(Manager* manager){
-        manager_list[current_manager] = manager;
-        current_manager++;
-    }
-    int current_employee_num() {return current_employee + current_manager;}
+    name = new char[strlen(cannon_name) +1];
+    strcpy(name, cannon_name);
+}
 
-    void print_employee_info(){
-        int total_pay = 0;
-        for (int i =0; i <current_employee; i++){
-            employee_list[i]->print_info();
-            total_pay += employee_list[i]-> calculate_pay();
-        }
-         for (int i =0; i <current_manager; i++){
-            manager_list[i]->print_info();
-            total_pay += manager_list[i]-> calculate_pay();
-        }
+Photon_Cannon::~Photon_Cannon(){
+    if (name) delete[] name;
+}
 
-        std::cout <<" 총 비용 : " << total_pay << "만원"<< std::endl;
+void Photon_Cannon::show_status(){
+    std::cout << " Photon Cannon " << std::endl;
+    std::cout << " Location : (" << coord_x << "," << coord_y << " ) "
+    <<std::endl;
+    std::cout << " HP : " << hp << std::endl;
 
-    }
-    ~EmployeeList(){
-        for(int i =0; i <current_employee; i++){
-            delete employee_list[i];
-        }
-         for(int i =0; i <current_manager; i++){
-            delete manager_list[i];
-        }
-        delete[] employee_list;
-          delete[] manager_list;
-    }
-};
-int main(){
-    EmployeeList emp_list(10);
+}
 
+int main() {
+   Photon_Cannon pc1(3,3, "Cannon");
+   Photon_Cannon pc2 = pc1;
 
-   emp_list.add_employee(new Employee("노홍철", 34, "평사원", 1));
-   emp_list.add_employee(new Employee("하하", 34, "평사원", 1));
-
-   emp_list.add_manager(new Manager("유재석", 41, "부장", 7,12));
-   emp_list.add_manager(new Manager("정준하", 43, "과장", 4,15));
-   emp_list.add_manager(new Manager("박명수", 43, "차장", 5,13));
-   emp_list.add_employee(new Employee("정형돈", 36, "대리", 2));
-   emp_list.add_employee(new Employee("길", 36, "인턴", -2));
-
-    emp_list.print_employee_info();
-    return 0;
+   pc1.show_status();
+   pc2.show_status();
 }

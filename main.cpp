@@ -32,9 +32,16 @@ Complex Complex::operator/(const char* str);
         
         Complex& operator=(const Complex& c);
 
+        friend Complex operator+(const Complex& a, const Complex& b);
+        friend std::ostream& operator<<(std::ostream& os, const Complex& c);
         void println() {std::cout << "(" << real << " , " << img << " ) "<< std::endl;}
 
 };
+std::ostream& operator<<(std::ostream& os, const Complex& c){
+    os<<"(" << c.real << " , " << c.img << ")";
+    return os;
+
+}
 Complex operator+(const Complex& a, const Complex& b){
     Complex temp(a);
     return temp.operator+(b);
@@ -152,7 +159,7 @@ Complex Complex::operator/(const char* str){
 
 int main(){
 Complex a(0,0);
-a = "-1.1 + i3.923" + a;
-a.println();
+a = "-1.1 = i3.923"+a;
+std::cout << "a의 값은 : " << a << "이다" << std::endl;
 }
 

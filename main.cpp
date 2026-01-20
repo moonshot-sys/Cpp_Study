@@ -1,19 +1,19 @@
  //이 파일은 연습용이다.
 // 틀려도 되고, 정리 안 해도 된다.
 
-//조작자의 사용
+//C++파일 입출력
+#include <fstream>
 #include <iostream>
 #include <string>
-
-int main(){
-  std::string s;
-  std::cin >>s;
-
-  //위치 지정자를 한 칸 옮기고, 그 다음 문자를 훔쳐본다.(이 때는 움직이지 않음)
-  char peek = std::cin.rdbuf()->snextc();
-  if(std::cin.fail()) std::cout<<"Failed";
-  std::cout<<"두 번째 단어 맨 앞글자 : " <<peek<<std::endl;
-  std::cin >> s;
-  std::cout<<"다시 읽으면 : "<< s << std::endl;
-
+int main() {
+// 파일 읽기 준비
+std::ifstream in("test.txt.txt");
+std::string s;
+if (in.is_open()) {
+in >> s;
+std::cout << "입력 받은 문자열 :: " << s << std::endl;
+} else {
+std::cout << "파일을 찾을 수 없습니다!" << std::endl;
+}
+return 0;
 }

@@ -1,30 +1,28 @@
  //이 파일은 연습용이다.
 // 틀려도 되고, 정리 안 해도 된다.
 
-//파일에 쓰기
+//ate 와 app
 #include <fstream>
 #include <iostream>
 #include <string>
 
 int main(){
-    //파일 쓰기 준비
-    std::ofstream out("test.txt.txt",std::ios::app);//out 객체를 생성할때 옵션으로
-                                                    //app을 주게 되면,
-                                                    //파일 스트림을 연결할때
-                                                    //원래 있던 내용 뒤에 새로운 내용을 붙여 쓰게 된다.
+    //두 파일에는 모두 abc라고 써 있었습니다. 
+    std::ofstream out("test.txt.txt",std::ios::app);
+    std::ofstream out2("other.txt",std::ios::out);
 
-    std::string s;
-    if(out.is_open()){
-        out<< "덧붙이기";
-    }
+    out.seekp(3, std::ios::beg);//파일 위치 지정자를 앞에서 3칸 떨어진 곳으로 이동
+    out2.seekp(3, std::ios::beg);
+
+    out<<"추가";
+    out2<<"추가";
+
     return 0;
-}
 
-/*/
-? ios::ate : 자동으로 파일 끝에서 부터 읽기와 쓰기를 실시합니다. 
-(즉 파일을 열 때 위치//지정자가 파일 끝을 가리키고 있게 됩니다)
-? ios::trunc : 파일 스트림을 열면 기존에 있던 내용들이 모두 지워집니다. 기본적으로
-ofstream 객체를 생성할 때 이와 같은 설정으로 만들어집니다.
-? ios::in, std::ios::out : 파일에 입력을 할 지 출력을 할 지 지정하며, ifstream 과
-ofstream 객체를 생성할 때 각각은 이미 설정되어 있습니다.
-/*/
+//app을 사용한 경우 abc 바로 뒤에 '추가' 문자열이 붙어 있는 것으로 나타남.
+//app 모드로 읽었을 때 현재 파일은 빈 파일이라 생각되어 위치 지정자라 움직일 곳이 없기에,
+//실제로 위치 지정자는 움직이지 않고 출력.
+
+//ate를 사용한 경우 3칸 띄어진 곳에서 '추가'라고 문자열이 출력된 반면 기존의 abc라는 데이터는 지워짐.
+//ate는 기존 파일의 내용을 보존하지 않음.
+}

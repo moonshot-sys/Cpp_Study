@@ -1,0 +1,20 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++.exe 프로젝트 빌드",
+            "command": "C:\\msys64\\ucrt64\\bin\\g++.exe", 
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g",
+                "${fileDirname}\\*.cpp", // 폴더 내 모든 cpp를 합쳐서 빌드
+                "-o",
+                "${fileDirname}\\main.exe"
+            ],
+            "options": { "cwd": "${fileDirname}" },
+            "problemMatcher": ["$gcc"],
+            "group": { "kind": "build", "isDefault": true }
+        }
+    ]
+}

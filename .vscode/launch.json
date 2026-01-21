@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ 프로젝트 실행",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${fileDirname}\\main.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}", // 👈 image_00c601 에러 해결
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:\\msys64\\ucrt64\\bin\\gdb.exe", // 👈 image_00cccd 에러 해결
+            "preLaunchTask": "C/C++: g++.exe 프로젝트 빌드" // tasks.json의 label과 일치 필수
+        }
+    ]
+}

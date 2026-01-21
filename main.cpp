@@ -1,133 +1,82 @@
-//ÀÌ ÆÄÀÏÀº ¿¬½À¿ëÀÌ´Ù.
-// Æ²·Áµµ µÇ°í, Á¤¸® ¾È ÇØµµ µÈ´Ù.
+#include <string>
+using std::string;
 
-//º¤ÅÍ Å¬·¡½º
-class Vector{
-    string* data;
-    int capacity;
-    int length;
+class Cell{
+    protected:
+    int x,y;
+    Table* table;
 
-    public:
-    //»ı¼ºÀÚ
-    Vector(int n =1); //»ç¿ëÀÚ°¡ ÀÎÀÚ¸¦ ÁöÁ¤ÇÏÁö ¾ÊÀ¸¸é ¾Ë¾Æ¼­ n=1ÀÌ µÇ°Ô ÁöÁ¤ 
-                      //Vector a() Vector a(1)°ú µ¿ÀÏÇÑ ÀÛ¾÷.
-                      //ÇØ´ç ÀÎÀÚÀÇ ±âº» °ªÀ» ÁöÁ¤ÇØ ³õÀº °ÍÀ» µğÆúÆ® ÀÎÀÚ ¶ó°í ÇÑ´Ù.
-                      //À¯ÀÇ »çÇ×À¸·Î´Â Å¬·¡½º ³»ºÎ ÇÔ¼ö ¼±¾ğ¿¡¼­ µğÆúÆ® ÀÎÀÚ¸¦ ¸í½ÃÇÏ¿´´Ù¸é
-                      //ÇÔ¼ö º»Ã¼¿¡¼­ ¸í½ÃÇÏ¸é ¾ÈµÇ°í
-                      //¹İ´ë·Î ÇÔ¼ö º»Ã¼¿¡¼­ ¸í½ÃÇÏ¿´´Ù¸é
-                      //Å¬·¡½º ³»ºÎ ÇÔ¼ö ¼±¾ğ¿¡ ¸í½ÃÇÏ¸é ¾ÈµÈ´Ù.
-
-
-    //¸Ç µÚ¿¡ »õ·Î¿î ¿ø¼Ò¸¦ Ãß°¡ÇÑ´Ù.
-    void push_back(string s);
-
-    //ÀÓÀÇÀÇ À§Ä¡ÀÇ ¿ø¼Ò¿¡ Á¢±ÙÇÑ´Ù.
-    string operator[] (int i);
-
-    // x ¹øÂ° À§Ä¡ÇÑ ¿ø¼Ò¸¦ Á¦°ÅÇÑ´Ù.
-    void remove(int x);
-
-    //ÇöÀç º¤ÅÍÀÇ Å©±â¸¦ ±¸ÇÑ´Ù.
-    int size();
-
-    ~Vector();
-};
-
-void Vector::push_back(string s){
-    if (capacity <= length){
-        string* temp =new string[capacity *2];
-        for (int i = 0; i<length ; i++){
-            temp[i] = data[i];
-        } 
-        delete[] data;
-        data= temp;
-        capacity *-2;
-    }
-    data[length] = s;
-    length++;
-}
-
-string Vector::operator[](int i){return data[i]; }
-
-void Vector::remove(int x){
-    for (int i = x+1; i <length; i++){
-        data[i - 1] = data[i];
-
-    }
-    length--;
-}
-
-int Vector::size() {return length;}
-
-Vector::~Vector(){
-    if (data){
-        delete[] data;
-    }
-}
-
-//½ºÅÃ Å¬·¡½º
-
-class Stack{
-    struct Node{
-        Node* prev;
-        string s;
-
-        Node(Node* prev, string s ) : prev(prev), s(s){}
-    };
-
-    Node* current; //ÃÖ»óÀ§ ³ëµåµéÀ» °¡¸®Å°°Ô ÇÑ´Ù.
-    Node start; //ÃÖÇÏÀ§ ³ëµå¸¦ °¡¸®Å°°Ô ÇÑ´Ù. ÀÌ´Â ¸¶Áö¸· ³ëµå¿¡ µµ´ŞÇÏ¿´À»¶§ 
-                //±× ¿©ºÎ¸¦ ¾Ë¾Æ¾ß ÇÏ±â ¶§¹®ÀÌ´Ù.
+    string data;
 
     public:
-        Stack();
-
-        //ÃÖ»ó´Ü¿¡ »õ·Î¿î ¿ø¼Ò¸¦ Ãß°¡ÇÑ´Ù.
-        void push(string s);
-
-        //ÃÖ»ó´ÜÀÇ ¿ø¼Ò¸¦ Á¦°ÅÇÏ°í ¹İÈ¯ÇÑ´Ù.
-        string pop();
-
-        //ÃÖ»ó´ÜÀÇ ¿ø¼Ò¸¦ ¹İÈ¯ÇÑ´Ù. (Á¦°Å ¾ÈÇÔ)
-        string peek();
-
-        //½ºÅÃÀÌ ºñ¾îÀÖ´ÂÁöÀÇ À¯¹«¸¦ ¹İÈ¯ÇÑ´Ù.
-
-        bool is_empty();
-
-        ~Stack();
-};
-
-Stack::Stack() : start(NULL,""){current =&start;}
-void Stack::push(string s){
-    Node* n = new Node(current, s);
-    current = n;
-}
-string Stack::pop(){
-    if (current == &start) return "";
-
-    string s = current->s;
-    Node* prev =current;
-    current = current->prev;
-
-    //Delete pooped node
+    virtual string strigify();
+    virtual int to_numeric();
     
-    delete prev;
-    return s;
-}
+    Cell(string data, int x, int y, Table* table);
 
-string Stack::peek() {return current ->s; }
-bool Stack::is_empty(){
-    if(current == &start) return ture;
-    return false;
-}
-Stack::~Stack(){
-    while (current != &start){
-        Node* prev =current;
-        current = current->prev;
-        delete prev;
+};
+
+class Table {
+    protected:
+    //í–‰ ë° ì—´ì˜ ìµœëŒ€ í¬ê¸°
+    int max_row_size, max_col_size;
+
+    //ë°ì´í„°ë¥¼ ë³´ê´€í•˜ëŠ” í…Œì´ë¸”
+    //Cell* ì„ ë³´ê´€í•˜ëŠ” 2ì°¨ì› ë°°ì—´ì´ë¼ ìƒê°í•˜ë©´ í¸í•˜ë‹¤.
+    Cell*** data_table;
+
+    public:
+    Table(int max_row_size, int max_col_size);
+    
+    ~Table();
+
+    //ìƒˆë¡œìš´ ì…€ì„ row í–‰ col ì—´ì— ë“±ë¡í•œë‹¤.
+    void reg_cell(Cell* c, int row, int col);
+
+    //í•´ë‹¹ ì…€ì˜ ì •ìˆ˜ê°’ì„ ë°˜í™˜í•œë‹¤.
+    //s : ì…€ì´ë¦„(Ex, A3, B6 ê³¼ ê°™ì´)
+    int to_numberic(const string& s);
+
+    //í–‰ ë° ì—´ë²ˆí˜¸ë¡œ ì…€ì„ í˜¸ì¶œí•œë‹¤.
+    int to_numberic(const string& s);
+
+    //í•´ë‹¹ ì…€ì˜ ë¬¸ìì—´ì„ ë°˜í™˜í•œë‹¤.
+    string stringify(const string& s);
+    string string(int row, int col);
+
+    virtual std::string print_table() =0;
+
+};
+//ì¼ë‹¨ Table í´ë˜ìŠ¤ëŠ” Cell ê°ì²´ë“¤ì„ 2ì°¨ì› ë°°ì—´ë¡œ ë³´ê´€í•œë‹¤.
+//ê°ì²´ ìì²´ë¥¼ ë³´ê´€í•˜ëŠ” ê²ƒì´ ì•„ë‹ˆë¼, ê°ì²´ëŠ” í•„ìš”í•  ë•Œë§ˆë‹¤ ë™ì ìœ¼ë¡œ ìƒì„±í•˜ê³ 
+//ê·¸ ê°ì²´ì— ëŒ€í•œ í¬ì¸í„°ë¥¼ 2ì°¨ì› ë°°ì—´ë¡œ ë³´ê´€
+Cell::Cell(string daa, int x, int y, Table* table)
+    :data(data), x(x), y(y), table(table) {}
+
+string Cell::strigify() {return data;}
+int Cell::to_numeric() {return 0;}
+
+Table::Table(int max_row_size, int max_col_size) 
+    : max_row_size(max_row_size), max_col_size(max_col_size){
+        data_table = new Cell**[max_row_size];
+        for (int i = 0; i <max_row_size; i++){
+            data_table[i] = new Cell*[max_col_size];
+            for (int j=0; j<max_col_size; j++){
+                data_table[i][j] = NULL;
+            }
+        }
     }
+
+Table::~Table(){
+    for(int i = 0; i < max_row_size; i ++){
+        for(int j = 0; j <max_col_size; j++){
+            if(data_table[i][j]) delete data_table[i][j];
+        }
+    }
+    for(int i = 0; i <max_row_size; i++){
+        delete[] data_table[i];
+    }
+    delete[] data_table;
 }
 
-/*/ ÁÖÀÇ ÇÒ Á¡Àº ¼Ò¸êÀÚ¿¡¼­ ÃÖ»óÀ§ ¿ø¼Ò ºÎÅÍ ÁÙÁÙÀÌ ¹Ù´Ú¿¡ µµ´ŞÇÒ
-¶§±îÁö ¸Ş¸ğ¸®¿¡¼­ ÇØÁ¦ ½ÃÄÑ¾ß ¿ÏÀüÈ÷ Stack °´Ã¼¸¦ ¼Ò¸ê ½ÃÅ³ ¼ö ÀÖ´Ù./*/
+void Table::reg_cell

@@ -1,33 +1,19 @@
  //이 파일은 연습용이다.
 // 틀려도 되고, 정리 안 해도 된다.
 
-//std::ofstream 연산자 오버로딩 하기
-#include <fstream>
+//문자열 스트림
+#include <sstream>
 #include <iostream>
 #include <string>
 
-class Human{
-    std::string name;
-    int age;
-
-    public:
-    Human(const std::string& name, int age) : name(name), age(age) {}
-    std::string get_info(){
-        return "Name :: " + name + "/ Age :: " + std::to_string(age);
-    }
-
-    friend std::ofstream& operator<<(std::ofstream& o, Human& h);
-};
-std::ofstream& operator<<(std::ofstream& o, Human& h){
-    o<<h.get_info();
-    return o;
-}
-
 int main(){
-    //파일 쓰기 준비
-    std::ofstream out("test.txt.txt");
-    Human h("이재범",60);
-    out<< h<< std::endl;
+    std::istringstream ss("123"); //이는 마치 문자열을 하나의 스트림이라 생각하게 해주는
+                                  //가상화 장치
+                                  //문자열 123이 기록되어 있는 입력 스트림을 생섬.
+                                  //즉 파일에 123이라 기록해 놓고, 거기서 입력 받는 것과 동일
+    int x;
+    ss>>x; //그래서 마치 파일에서 숫자를 읽어내는 것 처럼 std::istringstream을 통해서 123을 읽어낼 수 있음.
+    std::cout << "입력 받은 데이터 :: " << x << std::endl;
 
     return 0;
 }

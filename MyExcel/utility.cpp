@@ -103,7 +103,7 @@ NumStack::~NumStack(){
 Cell::Cell(string data, int x, int y, Table* table)
     :data(data), x(x), y(y), table(table) {}
 
-    string Cell::strigify() {return data;}
+    string Cell::stringify() {return data;}
     int Cell::to_numeric() {return 0;}
 
 Table::Table(int max_row_size, int max_col_size) 
@@ -163,14 +163,14 @@ string Table::stringify(const string& s){
 
     if (row < max_row_size&& col <max_col_size){
         if(data_table[row][col]){
-            return data_table[row][col]->strigify();
+            return data_table[row][col]->stringify();
         }
     }
     return 0;
 }
 string Table::stringify(int row, int col){
     if(row <max_row_size && col < max_col_size && data_table[row][col]){
-        return data_table[row][col]->strigify();
+        return data_table[row][col]->stringify();
     }
     return "";
 }
@@ -189,8 +189,8 @@ string TxtTable::print_table(){
     for (int i = 0; i< max_col_size; i++){
         unsigned int max_wide =2;
         for (int j = 0; j < max_row_size; j++){
-            if(data_table[j][i] && data_table[j][i]->strigify().length() > max_wide){
-                max_wide = data_table[j][i]->strigify().length();
+            if(data_table[j][i] && data_table[j][i]->stringify().length() > max_wide){
+                max_wide = data_table[j][i]->stringify().length();
             }
         }
         col_max_wide[i] = max_wide;
@@ -220,7 +220,7 @@ string TxtTable::print_table(){
 
                 string s ="";
                 if(data_table[i][j]){
-                    s=data_table[i][j]->strigify();
+                    s=data_table[i][j]->stringify();
                 }
                 total_table += " | " +s;
                 total_table += repeat_char(max_len - s.length(), ' ');
@@ -229,6 +229,7 @@ string TxtTable::print_table(){
         total_table += "\n";
         
     }
+
     return total_table;
 }
 string TxtTable::repeat_char(int n, char c){
@@ -254,13 +255,70 @@ string TxtTable::col_num_to_str(int n){
     }
     return s;
 }
+
+HtmlTable::HtmlTable(int row, int col):Table(row,col){}
+
+string HtmlTable::print_table(){
+    string s = "<table border='1' cellpadding='10'";
+    for (int i =0; i <max_row_size; i++){
+        s+="<tr>";
+        for (int j=0; j<max_col_size; j++){
+            s+="<td>";
+            if(data_table[i][j]) s += data_table[i][j]->stringify();
+            s+="</td>";
+        }
+        s +="</tr>";
+    }
+    s+="</table>";
+    return s;
+}
+
+CSVTable::CSVTable(int row, int col):Table(row,col){}
+string CSVTable::print_table(){
+    string s ="";
+    for(int i = 0; i<max_row_size; i++){
+        for (int j =0; j<max_col_size; j++){
+            if(j>=1) s += ",";
+            //CSV 파일 규칙에 따라 문자열에 큰따옴표가 포함되어 있다면 ""로
+            //치환한다.
+            string temp;
+            if(data_table[i][j]) temp = data_table[i][j]->stringify();
+
+            for (int k =0; k<temp.length(); k++){
+                if(temp[k]=='"'){
+                    //k의 위치에 "를 한 개 더 집어넣는다.
+                    temp.insert(k,1,'"');
+
+                    //이미 추가된 "를 다시 확인하는 일이 없게 하기 위해
+                    //k를 한 칸 더 이동시킨다.
+                    k++;
+                }
+            }
+            temp ='"'+temp+'"';
+            s+=temp;
+        }
+        s+='\n';
+    }
+    return s;
+    }
 }
 
 int main(){
-    MyExcel::TxtTable table(5, 5);
-    std::ofstream out("test.txt.txt");
-    table.reg_cell(new MyExcel::Cell("Hello~", 0, 0, &table), 0, 0);
-    table.reg_cell(new MyExcel::Cell("C++", 0, 1, &table), 0, 1);
-    std::cout << std::endl << table;
-    out << table;
+    MyExcel::CSVTable table(5,5);
+    std::ofstream out("test.csv");
+
+    table.reg_cell(new MyExcel::Cell("Hello~", 0, 0, &table), 0,0);
+    table.reg_cell(new MyExcel::Cell("C++", 0, 1, &table),0,1);
+
+    table.reg_cell(new MyExcel::Cell("Programaing",1 ,1 , &table),1,1);
+    out <<table;
+
+    MyExcel::HtmlTable table2(5,5);
+    std::ofstream out2("test.html");
+
+    table2.reg_cell(new MyExcel::Cell("Hello~", 0, 0, &table), 0, 0);
+    table2.reg_cell(new MyExcel::Cell("C++", 0, 1, &table), 0, 1);
+    table2.reg_cell(new MyExcel::Cell("Programming",1,1,&table),1,1);
+    out2 << table2;
 }
+

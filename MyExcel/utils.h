@@ -87,7 +87,7 @@ namespace MyExcel{class Vector {
          string data;
 
     public:
-        virtual string strigify();
+        virtual string stringify();
         virtual int to_numeric();
         
         Cell(string data, int x, int y, Table* table);
@@ -142,6 +142,18 @@ class TxtTable : public Table{
      string print_table();
 };
 
+class HtmlTable : public Table{
+    public:
+        HtmlTable(int row, int col);
+
+        string print_table();
+};
+
+class CSVTable : public Table{
+    public:
+    CSVTable(int row, int col);
+    string print_table();
+};
 }
 
 #endif

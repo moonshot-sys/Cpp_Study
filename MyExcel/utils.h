@@ -1,6 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
-
+#include <fstream>
 #include <string>
 using std::string;
 
@@ -94,13 +94,6 @@ namespace MyExcel{class Vector {
 
 };
 
-
-Cell::Cell(string daa, int x, int y, Table* table)
-    :data(data), x(x), y(y), table(table) {}
-
-    string Cell::strigify() {return data;}
-
-    int Cell::to_numeric() {return 0;}
 
     
 class Table {

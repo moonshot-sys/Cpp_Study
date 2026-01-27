@@ -4,7 +4,8 @@
 #include <string>
 using std::string;
 
-namespace MyExcel{class Vector {
+namespace MyExcel{
+    class Vector {
         string* data;
         int capacity;
         int length;
@@ -84,13 +85,11 @@ namespace MyExcel{class Vector {
         int x,y;
         Table* table;
 
-         string data;
-
     public:
-        virtual string stringify();
-        virtual int to_numeric();
+        virtual string stringify() = 0;
+        virtual int to_numeric() = 0;
         
-        Cell(string data, int x, int y, Table* table);
+        Cell( int x, int y, Table* table);
 
 };
 
@@ -154,6 +153,70 @@ class CSVTable : public Table{
     CSVTable(int row, int col);
     string print_table();
 };
+class StringCell : public Cell{
+    string data;
+
+    public:
+        string stringify();
+        int to_numeric();
+
+        StringCell(string data, int x, int y, Table* t);
+};
+class NumberCell : public Cell{
+    int data;
+
+    public:
+        string stringify();
+        int to_numeric();
+
+        NumberCell(int data, int x, int y, Table* t);
+};
+class DateCell : public Cell{
+    time_t data;
+
+    public:
+        string stringify();
+        int to_numeric();
+
+        DateCell(string s, int x, int y, Table* t);
+};
+class ExprCell : public Cell{
+    string data;
+    string* parsed_expr;
+
+    Vector exp_vec;
+
+    //연산자 우선 순위를 반환합니다.
+    //precednece 함수는 입력받은 연산자의 우선순위를 반환한다.
+    int precedence(char c);
+
+    //수식을 분석합니다.
+    //parse_expression 함수는 수식을 분석해서 계산하기 편하게 해주는 함수다.
+
+    void parse_expression();
+
+    public:
+    ExprCell(string data, int x, int y, Table* t);
+
+    string stringify();
+    int to_numeric();
+
+    /*중위 표기법과 후위 표기법
+    중위 표기법 : 3+4*5+4*(7-2)
+    컴퓨터의 경우 이를 계산하는데 조금 어려울 수 있다.
+    괄호를 우선 계산하고, *와/를 계산하고 그리고 +,-의 우선순위로 나누어서 계산해야함.
+    이처럼 피연산자와 피연산자 사이에 연산자를 넣는 형태로
+    수식을 표현하는 방법을 중위표기법이라고 한다.
+
+    후위 표기법 : 345*+472-*+
+    다른점 : 연산자들이 피연산자들 뒤에 있다., 괄호가 없다.
+    컴퓨터가 계산하는 법.
+    1.피연산자를 만나면 스택에 push한다.
+    2.연산자를 만나면 스택에서 두 개를 pop 한 뒤에 그 둘에 해당 연산을 한 후 
+    그 결과를 다시 스택에 push 한다.
+    */
+};
+
 }
 
 #endif

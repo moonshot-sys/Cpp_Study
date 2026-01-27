@@ -100,11 +100,157 @@ NumStack::~NumStack(){
 //객체 자체를 보관하는 것이 아니라, 객체는 필요할 때마다 동적으로 생성하고
 //그 객체에 대한 포인터를 2차원 배열로 보관
 
-Cell::Cell(string data, int x, int y, Table* table)
-    :data(data), x(x), y(y), table(table) {}
+Cell::Cell( int x, int y, Table* table)
+    :x(x), y(y), table(table) {}
 
-    string Cell::stringify() {return data;}
-    int Cell::to_numeric() {return 0;}
+StringCell::StringCell(string data, int x, int y, Table* t)
+:data(data), Cell(x,y,t){}
+string StringCell::stringify() {return data;}
+int StringCell::to_numeric(){return 0;}
+/* NumberCell */
+
+NumberCell::NumberCell(int data, int x, int y, Table* t):
+data(data), Cell(x,y,t){}
+
+string NumberCell::stringify() {return std::to_string(data);}
+int NumberCell::to_numeric() {return data;}
+/*
+
+DataCell
+
+*/
+
+string DateCell::stringify(){
+    char buf[50];
+    tm temp;
+    localtime_s(&temp, &data);
+    strftime(buf, 50, "%F", &temp);
+
+    return string(buf);
+
+}
+
+int DateCell::to_numeric() {return static_cast<int>(data);}
+
+DateCell::DateCell(string s, int x, int y, Table*t): Cell(x,y,t){
+    //입력받는 Date 형식은 항상 yyyy-mm-dd 꼴이라 가정한다. 
+    int year = atoi(s.c_str());
+    int month = atoi(s.c_str() + 5);
+    int day = atoi(s.c_str() + 8);
+//입력 받은 문자열을 연도, 월, 일로 구분한다.
+    tm timeinfo;
+
+    timeinfo.tm_year = year - 1900;
+    timeinfo.tm_mon = month -1;
+    timeinfo.tm_mday = day;
+    timeinfo.tm_hour = 0;
+    timeinfo.tm_min = 0;
+    timeinfo.tm_sec = 0;
+
+    data = mktime(&timeinfo);
+    //이를 바탕으로 timeinfo 객체를 초기화 한다. 
+    //tm클래스는 일월년 시분초 단위로 데이터를 보관하는 클래스
+    //하지만 DateCell은 time_t 형태로 데이터를 보환하고 있다.
+    //이 변환을 하기 위해 mktime에 timeinfo를 전달하는 것이다.
+    //time_t타입은 1970년부터 현재 시간까지 몇 초가 흘렀는지 
+    //보관하는 정수형 변수.
+
+}
+ExprCell::ExprCell(string data, int x, int y, Table* t):
+data(data), Cell(x,y,t){}
+
+int ExprCell::to_numeric(){
+    double result = 0;
+    NumStack stack;
+
+    for (int i = 0; i < exp_vec.size(); i++){//이 for문을 통해 각각의 토큰(exp_vec의 원소들)에 접근할 수s 있다.
+      //parse_expression 함수를 통해 입력 받은 중위 표기법으로 되어 있는
+      //수식이 후위 표기법으로 변환되어 있고
+      //그 결과가 exp_vec에 저장되어 있다.
+      //exp_vec은 벡터 클래스 객체로,각각의 원소가
+      //후위 표기법으로 변환된 수식의 각각의 토큰이 된다.
+        string s = exp_vec[i];
+
+        //셀 일 경우
+        if(isalpha(s[0])){
+            stack.push(table->to_numeric(s));
+        }
+        //숫자 일 경우(한 자리라 가정 )
+        else if (isdigit(s[0])){
+            stack.push(atoi(s.c_str()));
+            //각각의 토큰에 대해서 셀 이름(A3, B2)이나 숫자일 경우 스택에 push한다.
+        }else{//연산자를 만날 경우 스택에서 두번 pop을 해서 해당하는 피연산자들에 해당 연산자를 적용해
+              //다시 스택에 push하게 된다.
+            double y = stack.pop();
+            double x = stack.pop();
+            switch (s[0]){
+                case '+':
+                    stack.push(x+y);
+                    break;
+                case '-':
+                    stack.push(x-y);
+                    break;
+                case '*':
+                    stack.push(x*y);
+                    break;
+                case '/':
+                    stack.push(x/y);
+                    break;
+            }
+        }
+    }
+    return stack.pop(); //모든 계산이 끝나면 스택에 최종 결과값을 pop하며 이를 return
+}
+int ExprCell::precedence(char c){
+    switch(c){
+        case '(':
+        case '[':
+        case '{':
+            return 0;
+        case '+':
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+            return 2;
+    }
+    return 0;
+}
+string ExprCell::stringify() {
+    parse_expression();
+   return std::to_string(to_numeric());
+}
+void ExprCell::parse_expression(){
+    Stack stack;
+
+    //수식 전체를 ()로 둘러 사서 exp_vec에 남아있는 연산자들이 push되게
+    //해준다.
+    data.insert(0, "(");
+    data.push_back(')');
+
+    for (int i =0; i<data.length(); i++){
+        if(isalpha(data[i])){
+            exp_vec.push_back(data.substr(i,2));
+            i++;
+        }else if(isdigit(data[i])){
+            exp_vec.push_back(data.substr(i,1));
+        }else if (data[i] =='(' || data[i] == '[' || data[i] =='{'){//Parenthesis
+            stack.push(data.substr(i,1));
+        }else if (data[i] == ')' || data[i] == ']' || data[i]=='}'){
+            string t = stack.pop();
+            while (t != "(" && t != "[" && t != "{"){
+                exp_vec.push_back(t);
+                t = stack.pop();
+            }
+        }else if(data[i] == '+' || data[i] == '-' || data[i] == '*' || data[i] == '/'){
+                while (!stack.is_empty() && precedence(stack.peek()[0]) >= precedence(data[i])){
+                    exp_vec.push_back(stack.pop());
+                }
+                stack.push(data.substr(i,1));
+            }
+        }
+    }
+
 
 Table::Table(int max_row_size, int max_col_size) 
     : max_row_size(max_row_size), max_col_size(max_col_size){
@@ -141,7 +287,7 @@ void Table::reg_cell(Cell* c, int row, int col){
 int Table::to_numeric(const std::string& s){
     //Cell 이름으로 받는다.
     int row = s[0] - 'A';
-    int col = atoi(s.c_str() + 1 -1);
+    int col = atoi(s.c_str() + 1);
 
     if (row < max_row_size && col < max_col_size){
         if(data_table[row][col]){
@@ -301,24 +447,18 @@ string CSVTable::print_table(){
     }
     return s;
     }
+    
 }
 
 int main(){
-    MyExcel::CSVTable table(5,5);
-    std::ofstream out("test.csv");
+    MyExcel::TxtTable table(5,5);
+    table.reg_cell(new MyExcel::NumberCell(2,1,1, &table),1,1);
+    table.reg_cell(new MyExcel::NumberCell(3,1,2, &table),1,2);
 
-    table.reg_cell(new MyExcel::Cell("Hello~", 0, 0, &table), 0,0);
-    table.reg_cell(new MyExcel::Cell("C++", 0, 1, &table),0,1);
+    table.reg_cell(new MyExcel::NumberCell(4,2,1, &table),2,1);
+    table.reg_cell(new MyExcel::NumberCell(5,2,2, &table),2,2);
+    table.reg_cell(new MyExcel::ExprCell("B2 + B3 * (C2+C3-2)",3,3,&table),3,2);
+    table.reg_cell(new MyExcel::StringCell("B2 + B3 * (C2+C3-2) = ",3,2,&table),3,1);
 
-    table.reg_cell(new MyExcel::Cell("Programaing",1 ,1 , &table),1,1);
-    out <<table;
-
-    MyExcel::HtmlTable table2(5,5);
-    std::ofstream out2("test.html");
-
-    table2.reg_cell(new MyExcel::Cell("Hello~", 0, 0, &table), 0, 0);
-    table2.reg_cell(new MyExcel::Cell("C++", 0, 1, &table), 0, 1);
-    table2.reg_cell(new MyExcel::Cell("Programming",1,1,&table),1,1);
-    out2 << table2;
+    std::cout<<table;
 }
-

@@ -57,7 +57,7 @@ string Stack::pop(){
 }
 string Stack::peek() {return current->s;}
 bool Stack::is_empty(){
-    if(current = &start) return true;
+    if(current == &start) return true; //current = &start로 되어 있던걸 ==로 수정(if문이니까)
     return false;
     }
 Stack::~Stack(){
@@ -157,7 +157,8 @@ DateCell::DateCell(string s, int x, int y, Table*t): Cell(x,y,t){
 
 }
 ExprCell::ExprCell(string data, int x, int y, Table* t):
-data(data), Cell(x,y,t){}
+data(data), Cell(x,y,t){parse_expression();} //생성자 시작시 계산 시작 할 수 있도록 코드 작성
+                                             
 
 int ExprCell::to_numeric(){
     double result = 0;
@@ -217,7 +218,6 @@ int ExprCell::precedence(char c){
     return 0;
 }
 string ExprCell::stringify() {
-    parse_expression();
    return std::to_string(to_numeric());
 }
 void ExprCell::parse_expression(){
@@ -225,7 +225,7 @@ void ExprCell::parse_expression(){
 
     //수식 전체를 ()로 둘러 사서 exp_vec에 남아있는 연산자들이 push되게
     //해준다.
-    data.insert(0, "(");
+    data.insert(0,"(");
     data.push_back(')');
 
     for (int i =0; i<data.length(); i++){
@@ -286,8 +286,9 @@ void Table::reg_cell(Cell* c, int row, int col){
 
 int Table::to_numeric(const std::string& s){
     //Cell 이름으로 받는다.
-    int row = s[0] - 'A';
-    int col = atoi(s.c_str() + 1);
+    int col = s[0] - 'A'; /*col과 row 위치 뒤집혀 있었음 그래서 26이 아닌 2+3*(4+5-2)=23이 나옴. */
+    int row = atoi(s.c_str() + 1)-1; // atoi(s.c_str() + 1 -1) 문자열의 맨 처음부터 읽기 시작했던 코드로 작성되어 있었는데
+                                     // 문자열 주소를 한 칸 뒤로 옮겨서 숫자로 바꾼뒤 나중에 수학적으로 1을 빼는 코드로 변경
 
     if (row < max_row_size && col < max_col_size){
         if(data_table[row][col]){
@@ -305,9 +306,9 @@ int Table::to_numeric(int row, int col){
 string Table::stringify(const string& s){
     //Cell 이름으로 받는다.
     int col = s[0] - 'A';
-    int row = atoi(s.c_str() + 1) -1;
+    int row = atoi(s.c_str() + 1)-1;
 
-    if (row < max_row_size&& col <max_col_size){
+    if (row < max_row_size && col <max_col_size){
         if(data_table[row][col]){
             return data_table[row][col]->stringify();
         }
@@ -451,12 +452,14 @@ string CSVTable::print_table(){
 }
 
 int main(){
-    MyExcel::TxtTable table(5,5);
-    table.reg_cell(new MyExcel::NumberCell(2,1,1, &table),1,1);
-    table.reg_cell(new MyExcel::NumberCell(3,1,2, &table),1,2);
+   MyExcel::TxtTable table(5,5);
 
-    table.reg_cell(new MyExcel::NumberCell(4,2,1, &table),2,1);
-    table.reg_cell(new MyExcel::NumberCell(5,2,2, &table),2,2);
+    // (0, 0)은 A1, (0, 1)은 B1 ...
+    table.reg_cell(new MyExcel::NumberCell(2, 1, 1, &table), 1, 1); // B1에 2
+    table.reg_cell(new MyExcel::NumberCell(3, 1, 2, &table), 1, 2); // C1에 3
+    table.reg_cell(new MyExcel::NumberCell(4, 2, 1, &table), 2, 1); // B2에 4
+    table.reg_cell(new MyExcel::NumberCell(5, 2, 2, &table), 2, 2); // C2에 5
+    // 수식 셀 등록
     table.reg_cell(new MyExcel::ExprCell("B2 + B3 * (C2+C3-2)",3,3,&table),3,2);
     table.reg_cell(new MyExcel::StringCell("B2 + B3 * (C2+C3-2) = ",3,2,&table),3,1);
 
